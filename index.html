@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <title>Iframe Ads - Javascript Document Seed</title>
+    <base href="/~dan/Ads/">
+    <script type="text/javascript" src="jquery.js"></script>
+    <!-- script type="text/javascript" src="jquery-json-1.3.js"></script-->
+    <script type="text/javascript" src="jquery.dart-1.0.js"></script>
+    <script>
+      // set global dart options at top of the page.
+      jQuery.dart.options({'additionalParams': {'dcadv': 2147696, 'somthing': 'else', 'and': 'abotherthing'}, 'kw': ['this', 'that', 'the', 'other', 'thing']});
+    </script>
+    
+  </head>
+  <body>
+  <p>This is a test page to see if you can seed iframe with a document.write from the src value.</p>
+  <p>Further testing shows changing the src value causes IE to increment its history<br/>
+     However the first call to the src value does not modify the history.</p>
+  <p>this is loading too fast in Safari with .one it does work with .ready look into including this condition in the dart function.<br/> 
+    <iframe id="parent_frame" height="90" width="728" scrolling="no" frameborder="0"></iframe>
+    <script type="text/javascript">jQuery(function(){jQuery("#parent_frame").each(function(){jQuery("#parent_frame").dart({sz: '728x90'})})});</script>
+  </p>
+  <p>
+    insert iframe onto page dynamically(not ideal: will not fail over without javascript. <i>project abandoned</i>)<br />
+    jQuery.dart.insert('{sz: "728x90"}');
+  </p>
+  <p>
+    <a href="#" onclick="jQuery('#parent_frame').dart({sz: '728x90', pos: 'leaderboard'});" >Load Seed Document into iframe</a>
+  </p>  
+  <p>Overview:</p>
+  
+    <ul>  
+      <li> Create DART object at top of page and set defaults like site and zone. </li>
+        <ul>
+          <li> DART.options({option1: 'value1_here', option2: 'value2_here'}) </li>
+        </ul>
+      <li>  Where each ad unit is supposed to be on the page use <b>jQuery.dart('ad_unit_name').init();</b></li>
+        <ul>
+          <li>  the init function will document.write the code to the page that is needed to display the ad unit.</li>
+          <li>  individual overrides and callbacks can be set here also</li>
+          <li>  <b>DART.insert('ad_unit_name').callback('function name or function').table({options: 'here'}).init();</b></li>
+        </ul>
+    </ul>
+
+<script type="text/javascript">
+// http://ajaxian.com/archives/get-rid-of-the-ie-iframe-click
+ function setIFrameSrc(iframe) {
+     var el;
+     iframe = document.getElementById(iframe);
+     if (navigator.userAgent.indexOf('MSIE') != -1) {
+         // Create a new hidden iframe.
+         el = iframe.cloneNode(true);
+         el.style.position = "absolute";
+         el.style.visibility = "hidden";
+         // keep the original iframe id unique!
+         el.id = "";
+         // Listen for the onload event.
+         el.attachEvent("onload", function (event) {
+             // First, remove the event listener or the old iframe
+             // we intend to discard will not be freed...
+             event.srcElement.detachEvent("onload", arguments.callee);
+             // Show the iframe.
+             event.srcElement.style.position = "";
+             event.srcElement.style.visibility = "";
+             event.srcElement.style.borderColor = 'green'
+             event.srcElement.style.borderWidth = '50px'
+             // Replace the old iframe with the new one.
+             iframe.parentNode.replaceChild(el, iframe);
+             // Reset the iframe id.
+             el.id = iframe.id;
+         });
+         // Set its src first...
+         el.src = 'javascript:document.open();document.write(\''+SEED_DOCUMENT+'\');document.close();';
+         // ...and then append it to the body of the document.
+         document.body.appendChild(el);
+     } else {
+         iframe.src = 'javascript:document.open();document.write(\''+SEED_DOCUMENT+'\');document.close();';
+     }
+ }
+
+  // http://nirlevy.blogspot.com/2007/09/avoding-browser-history-when-changing.html
+   // var iframeHeaderCell = document.getElementById('wheretoputheiframe');
+   // var dynamicURL = 'http://...' //your url
+   // var iframeHeader = document.createElement('IFRAME');
+   // iframeHeader.id = 'iframeHeader';
+   // iframeHeader.src = dynamicURL ;
+   // iframeHeader.width = ...;
+   // iframeHeader.height = ...;
+   // iframeHeader.scrolling = 'no';
+   // iframeHeader.frameBorder = 0;
+   // iframeHeader.align = 'center';
+   // iframeHeader.valign='top'
+   // iframeHeader.marginwidth = 0;
+   // iframeHeader.marginheight = 0;
+   // iframeHeader.hspace = 0;
+   // iframeHeader.vspace = 0;
+   // iframeHeaderCell.appendChild(iframeHeader);
+   
+   
+   // http://ajaxian.com/archives/get-rid-of-the-ie-iframe-click
+   // 
+    function setIFrameSrcXXX(iframe, src) {
+        var el;
+        iframe = document.getElementById(iframe);
+        if (jQuery.browser.msie) {
+            // Create a new hidden iframe.
+            el = iframe.cloneNode(true);
+            el.style.position = "absolute";
+            el.style.visibility = "hidden";
+            // keep the original iframe id unique!
+            el.id = "";
+            // Listen for the onload event.
+            YAHOO.util.Event.addListener(el, "load", function () {
+                // First, remove the event listener or the old iframe
+                // we intend to discard will not be freed...
+                YAHOO.util.Event.removeListener(this, "load", arguments.callee);
+                // Show the iframe.
+                this.style.position = "";
+                this.style.visibility = "";
+                // Replace the old iframe with the new one.
+                iframe.parentNode.replaceChild(this, iframe);
+                // Reset the iframe id.
+                this.id = iframe.id;
+            });
+            // Set its src first...
+            el.src = src;
+            // ...and then append it to the body of the document.
+            document.body.appendChild(el);
+        } else {
+            iframe.src = src;
+        }
+    }
+//jQuery('#parent_frame').replaceWith(jQuery('#parent_frame').clone().each(function() {this.src = 'javascript:document.open();document.write(\''+SEED_DOCUMENT+'\');document.close();'}));
+//jQuery('#parent_frame').replaceWith(jQuery('#parent_frame').clone().css({'border-color': 'red', 'border-width': '50px' }));   
+
+</script>
+  
+  </body>
+</html>
